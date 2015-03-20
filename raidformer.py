@@ -57,6 +57,9 @@ def get_options():
     parser.add_option("", "--from-snapshot",  action="store",
         dest="snapshot", default=None,
         help="Create volumes from one or more ebs snapshots. Order preservation is essential")
+    parser.add_option("", "--virtualization", action="store", type="string",
+        dest="virtualization", default="pv",
+        help="Virtualization type for the server. Affects device naming")
     options, args = parser.parse_args()
     return options, args
 
@@ -85,6 +88,16 @@ def initialize_filesystem(cmds, wipe, md_device, volgroup, logvol, format_cmds, 
     cmds.append('echo "/dev/%s/%s%s %s       %s    %s        1 1" >> /etc/fstab' % (volgroup, logvol, device_short, mountpoint, filesystem, format_fstab_settings[filesystem]) )
     cmds.append('mount %s' % mountpoint)
     return cmds
+
+def get_my_devices(mode):
+    devices = []
+    if mode=='hvm':
+        for dev in devices[:options.count]: 
+            devices.append(dev)
+    else:
+        for n in range(1, options.count + 1):
+            devices.append(options.device + str(n) )
+    return devices
 
 
 options, args = get_options()
@@ -135,10 +148,7 @@ if options.raidlevel in even_number_raidlevels and options.count % 2 != 0:
     print "Number of volumes to be created in not compatible with raid level %s" % options.raidlevel
     sys.exit(1)
 
-my_devices = []
-
-for n in range(1, options.count + 1):
-    my_devices.append(options.device + str(n) )
+my_devices = get_my_devices(options.virtualization)
 
 instance_data = boto.utils.get_instance_metadata()
 
