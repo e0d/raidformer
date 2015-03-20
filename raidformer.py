@@ -92,12 +92,11 @@ def initialize_filesystem(cmds, wipe, md_device, volgroup, logvol, format_cmds, 
 def get_my_devices(mode, count):
     my_devices = []
     if mode=='hvm':
-        for dev in devices[:count]: 
-            my_devices.append(dev)
+        return devices[:count]
     else:
         for n in range(1, count + 1):
             my_devices.append(options.device + str(n) )
-    return devices
+    return my_devices
 
 
 options, args = get_options()
