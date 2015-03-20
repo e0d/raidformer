@@ -89,13 +89,13 @@ def initialize_filesystem(cmds, wipe, md_device, volgroup, logvol, format_cmds, 
     cmds.append('mount %s' % mountpoint)
     return cmds
 
-def get_my_devices(mode):
+def get_my_devices(mode, count):
     my_devices = []
     if mode=='hvm':
-        for dev in devices[:options.count]: 
+        for dev in devices[:count]: 
             my_devices.append(dev)
     else:
-        for n in range(1, options.count + 1):
+        for n in range(1, count + 1):
             my_devices.append(options.device + str(n) )
     return devices
 
@@ -148,7 +148,7 @@ if options.raidlevel in even_number_raidlevels and options.count % 2 != 0:
     print "Number of volumes to be created in not compatible with raid level %s" % options.raidlevel
     sys.exit(1)
 
-my_devices = get_my_devices(options.virtualization)
+my_devices = get_my_devices(options.virtualization, options.count)
 
 instance_data = boto.utils.get_instance_metadata()
 
